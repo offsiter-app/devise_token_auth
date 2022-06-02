@@ -9,7 +9,10 @@ module DeviseTokenAuth::Concerns::UserOmniauthCallbacks
     validates_presence_of :uid, if: lambda { uid_and_provider_defined? && !email_provider? }
 
     # only validate unique emails among email registration users
-    validates :email, uniqueness: { case_sensitive: false, scope: :provider }, on: :create, if: lambda { uid_and_provider_defined? && email_provider? }
+    validates :email, uniqueness: {
+      case_sensitive: false,
+      scope: self.const_defined?('EMAIL_VALIDATION_SCOPE') ? self.const_get('EMAIL_VALIDATION_SCOPE') : :provider
+    }, on: :create, if: lambda { uid_and_provider_defined? && email_provider? }
 
     # keep uid in sync with email
     before_save :sync_uid
